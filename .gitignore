@@ -1,0 +1,25 @@
+# generated packs and working files
+build/
+downloads/
+source/
+*.mp4
+*.mkv
+*.webm
+*.mov
+*.ogg
+*.zip
+
+# python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+dist/
+.pytest_cache/
+
+# editors / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
