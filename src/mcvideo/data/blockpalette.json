@@ -1,0 +1,810 @@
+{
+ "source": "minecraft-26.3-client.jar",
+ "blocks": {
+  "white_concrete": [
+   206,
+   213,
+   213
+  ],
+  "orange_concrete": [
+   224,
+   97,
+   1
+  ],
+  "magenta_concrete": [
+   169,
+   49,
+   159
+  ],
+  "light_blue_concrete": [
+   36,
+   137,
+   199
+  ],
+  "yellow_concrete": [
+   241,
+   175,
+   22
+  ],
+  "lime_concrete": [
+   94,
+   169,
+   24
+  ],
+  "pink_concrete": [
+   214,
+   101,
+   143
+  ],
+  "gray_concrete": [
+   54,
+   58,
+   61
+  ],
+  "light_gray_concrete": [
+   125,
+   124,
+   116
+  ],
+  "cyan_concrete": [
+   22,
+   119,
+   137
+  ],
+  "purple_concrete": [
+   100,
+   32,
+   157
+  ],
+  "blue_concrete": [
+   44,
+   46,
+   143
+  ],
+  "brown_concrete": [
+   96,
+   59,
+   31
+  ],
+  "green_concrete": [
+   73,
+   91,
+   37
+  ],
+  "red_concrete": [
+   142,
+   33,
+   33
+  ],
+  "black_concrete": [
+   9,
+   10,
+   14
+  ],
+  "white_wool": [
+   234,
+   237,
+   237
+  ],
+  "orange_wool": [
+   241,
+   119,
+   20
+  ],
+  "magenta_wool": [
+   190,
+   69,
+   181
+  ],
+  "light_blue_wool": [
+   58,
+   176,
+   218
+  ],
+  "yellow_wool": [
+   249,
+   199,
+   40
+  ],
+  "lime_wool": [
+   113,
+   186,
+   26
+  ],
+  "pink_wool": [
+   238,
+   142,
+   173
+  ],
+  "gray_wool": [
+   63,
+   69,
+   72
+  ],
+  "light_gray_wool": [
+   142,
+   143,
+   135
+  ],
+  "cyan_wool": [
+   21,
+   138,
+   145
+  ],
+  "purple_wool": [
+   122,
+   43,
+   173
+  ],
+  "blue_wool": [
+   53,
+   57,
+   158
+  ],
+  "brown_wool": [
+   115,
+   72,
+   41
+  ],
+  "green_wool": [
+   85,
+   110,
+   27
+  ],
+  "red_wool": [
+   162,
+   40,
+   35
+  ],
+  "black_wool": [
+   21,
+   21,
+   26
+  ],
+  "terracotta": [
+   153,
+   94,
+   67
+  ],
+  "white_terracotta": [
+   210,
+   178,
+   161
+  ],
+  "orange_terracotta": [
+   162,
+   84,
+   38
+  ],
+  "magenta_terracotta": [
+   150,
+   88,
+   109
+  ],
+  "light_blue_terracotta": [
+   113,
+   109,
+   138
+  ],
+  "yellow_terracotta": [
+   186,
+   133,
+   35
+  ],
+  "lime_terracotta": [
+   104,
+   118,
+   53
+  ],
+  "pink_terracotta": [
+   162,
+   78,
+   79
+  ],
+  "gray_terracotta": [
+   58,
+   42,
+   36
+  ],
+  "light_gray_terracotta": [
+   135,
+   107,
+   97
+  ],
+  "cyan_terracotta": [
+   87,
+   91,
+   91
+  ],
+  "purple_terracotta": [
+   118,
+   70,
+   86
+  ],
+  "blue_terracotta": [
+   74,
+   60,
+   91
+  ],
+  "brown_terracotta": [
+   77,
+   51,
+   36
+  ],
+  "green_terracotta": [
+   76,
+   83,
+   42
+  ],
+  "red_terracotta": [
+   143,
+   61,
+   47
+  ],
+  "black_terracotta": [
+   38,
+   23,
+   16
+  ],
+  "snow_block": [
+   248,
+   254,
+   254
+  ],
+  "quartz_block": [
+   237,
+   230,
+   224
+  ],
+  "smooth_quartz": [
+   237,
+   230,
+   224
+  ],
+  "smooth_stone": [
+   168,
+   168,
+   168
+  ],
+  "stone": [
+   125,
+   125,
+   125
+  ],
+  "andesite": [
+   137,
+   137,
+   137
+  ],
+  "diorite": [
+   188,
+   188,
+   189
+  ],
+  "granite": [
+   148,
+   102,
+   85
+  ],
+  "polished_andesite": [
+   131,
+   134,
+   134
+  ],
+  "polished_diorite": [
+   201,
+   201,
+   202
+  ],
+  "polished_granite": [
+   156,
+   107,
+   88
+  ],
+  "calcite": [
+   223,
+   224,
+   221
+  ],
+  "tuff": [
+   109,
+   110,
+   103
+  ],
+  "deepslate": [
+   78,
+   78,
+   81
+  ],
+  "polished_deepslate": [
+   72,
+   73,
+   73
+  ],
+  "blackstone": [
+   43,
+   37,
+   43
+  ],
+  "polished_blackstone": [
+   53,
+   49,
+   58
+  ],
+  "obsidian": [
+   17,
+   11,
+   26
+  ],
+  "coal_block": [
+   16,
+   16,
+   16
+  ],
+  "iron_block": [
+   229,
+   229,
+   229
+  ],
+  "gold_block": [
+   252,
+   220,
+   68
+  ],
+  "diamond_block": [
+   115,
+   246,
+   233
+  ],
+  "emerald_block": [
+   48,
+   212,
+   98
+  ],
+  "lapis_block": [
+   30,
+   67,
+   139
+  ],
+  "redstone_block": [
+   159,
+   22,
+   4
+  ],
+  "netherite_block": [
+   72,
+   68,
+   71
+  ],
+  "amethyst_block": [
+   135,
+   99,
+   193
+  ],
+  "waxed_copper_block": [
+   194,
+   109,
+   79
+  ],
+  "waxed_exposed_copper": [
+   161,
+   127,
+   103
+  ],
+  "waxed_weathered_copper": [
+   109,
+   155,
+   109
+  ],
+  "waxed_oxidized_copper": [
+   83,
+   167,
+   137
+  ],
+  "packed_ice": [
+   141,
+   180,
+   251
+  ],
+  "blue_ice": [
+   116,
+   168,
+   254
+  ],
+  "clay": [
+   161,
+   166,
+   179
+  ],
+  "moss_block": [
+   89,
+   110,
+   45
+  ],
+  "bone_block": [
+   231,
+   227,
+   210
+  ],
+  "hay_block": [
+   166,
+   135,
+   38
+  ],
+  "netherrack": [
+   98,
+   39,
+   38
+  ],
+  "nether_bricks": [
+   45,
+   22,
+   26
+  ],
+  "red_nether_bricks": [
+   69,
+   7,
+   9
+  ],
+  "warped_wart_block": [
+   23,
+   119,
+   120
+  ],
+  "nether_wart_block": [
+   115,
+   3,
+   3
+  ],
+  "end_stone": [
+   220,
+   224,
+   159
+  ],
+  "purpur_block": [
+   171,
+   126,
+   171
+  ],
+  "prismarine": [
+   100,
+   156,
+   151
+  ],
+  "dark_prismarine": [
+   52,
+   92,
+   76
+  ],
+  "prismarine_bricks": [
+   99,
+   174,
+   161
+  ],
+  "bricks": [
+   149,
+   95,
+   80
+  ],
+  "mud_bricks": [
+   139,
+   105,
+   79
+  ],
+  "stone_bricks": [
+   123,
+   122,
+   123
+  ],
+  "sandstone": [
+   216,
+   202,
+   153
+  ],
+  "red_sandstone": [
+   185,
+   98,
+   28
+  ],
+  "smooth_sandstone": [
+   224,
+   214,
+   171
+  ],
+  "smooth_red_sandstone": [
+   181,
+   98,
+   32
+  ],
+  "pumpkin": [
+   203,
+   121,
+   27
+  ],
+  "melon": [
+   115,
+   146,
+   30
+  ],
+  "dried_kelp_block": [
+   40,
+   51,
+   31
+  ],
+  "dripstone_block": [
+   135,
+   109,
+   94
+  ],
+  "mud": [
+   60,
+   57,
+   60
+  ],
+  "coarse_dirt": [
+   119,
+   85,
+   59
+  ],
+  "dirt": [
+   133,
+   95,
+   67
+  ],
+  "honeycomb_block": [
+   230,
+   150,
+   31
+  ],
+  "oak_planks": [
+   164,
+   132,
+   80
+  ],
+  "spruce_planks": [
+   116,
+   86,
+   49
+  ],
+  "birch_planks": [
+   194,
+   176,
+   122
+  ],
+  "jungle_planks": [
+   162,
+   117,
+   81
+  ],
+  "acacia_planks": [
+   169,
+   91,
+   50
+  ],
+  "dark_oak_planks": [
+   68,
+   44,
+   21
+  ],
+  "mangrove_planks": [
+   119,
+   54,
+   49
+  ],
+  "cherry_planks": [
+   227,
+   180,
+   174
+  ],
+  "bamboo_planks": [
+   197,
+   176,
+   83
+  ],
+  "crimson_planks": [
+   102,
+   49,
+   71
+  ],
+  "warped_planks": [
+   44,
+   106,
+   100
+  ]
+ },
+ "sets": {
+  "color": [
+   "white_concrete",
+   "orange_concrete",
+   "magenta_concrete",
+   "light_blue_concrete",
+   "yellow_concrete",
+   "lime_concrete",
+   "pink_concrete",
+   "gray_concrete",
+   "light_gray_concrete",
+   "cyan_concrete",
+   "purple_concrete",
+   "blue_concrete",
+   "brown_concrete",
+   "green_concrete",
+   "red_concrete",
+   "black_concrete"
+  ],
+  "plus": [
+   "white_concrete",
+   "orange_concrete",
+   "magenta_concrete",
+   "light_blue_concrete",
+   "yellow_concrete",
+   "lime_concrete",
+   "pink_concrete",
+   "gray_concrete",
+   "light_gray_concrete",
+   "cyan_concrete",
+   "purple_concrete",
+   "blue_concrete",
+   "brown_concrete",
+   "green_concrete",
+   "red_concrete",
+   "black_concrete",
+   "white_wool",
+   "orange_wool",
+   "magenta_wool",
+   "light_blue_wool",
+   "yellow_wool",
+   "lime_wool",
+   "pink_wool",
+   "gray_wool",
+   "light_gray_wool",
+   "cyan_wool",
+   "purple_wool",
+   "blue_wool",
+   "brown_wool",
+   "green_wool",
+   "red_wool",
+   "black_wool",
+   "terracotta",
+   "white_terracotta",
+   "orange_terracotta",
+   "magenta_terracotta",
+   "light_blue_terracotta",
+   "yellow_terracotta",
+   "lime_terracotta",
+   "pink_terracotta",
+   "gray_terracotta",
+   "light_gray_terracotta",
+   "cyan_terracotta",
+   "purple_terracotta",
+   "blue_terracotta",
+   "brown_terracotta",
+   "green_terracotta",
+   "red_terracotta",
+   "black_terracotta"
+  ],
+  "full": [
+   "white_concrete",
+   "orange_concrete",
+   "magenta_concrete",
+   "light_blue_concrete",
+   "yellow_concrete",
+   "lime_concrete",
+   "pink_concrete",
+   "gray_concrete",
+   "light_gray_concrete",
+   "cyan_concrete",
+   "purple_concrete",
+   "blue_concrete",
+   "brown_concrete",
+   "green_concrete",
+   "red_concrete",
+   "black_concrete",
+   "white_wool",
+   "orange_wool",
+   "magenta_wool",
+   "light_blue_wool",
+   "yellow_wool",
+   "lime_wool",
+   "pink_wool",
+   "gray_wool",
+   "light_gray_wool",
+   "cyan_wool",
+   "purple_wool",
+   "blue_wool",
+   "brown_wool",
+   "green_wool",
+   "red_wool",
+   "black_wool",
+   "terracotta",
+   "white_terracotta",
+   "orange_terracotta",
+   "magenta_terracotta",
+   "light_blue_terracotta",
+   "yellow_terracotta",
+   "lime_terracotta",
+   "pink_terracotta",
+   "gray_terracotta",
+   "light_gray_terracotta",
+   "cyan_terracotta",
+   "purple_terracotta",
+   "blue_terracotta",
+   "brown_terracotta",
+   "green_terracotta",
+   "red_terracotta",
+   "black_terracotta",
+   "snow_block",
+   "quartz_block",
+   "smooth_quartz",
+   "smooth_stone",
+   "stone",
+   "andesite",
+   "diorite",
+   "granite",
+   "polished_andesite",
+   "polished_diorite",
+   "polished_granite",
+   "calcite",
+   "tuff",
+   "deepslate",
+   "polished_deepslate",
+   "blackstone",
+   "polished_blackstone",
+   "obsidian",
+   "coal_block",
+   "iron_block",
+   "gold_block",
+   "diamond_block",
+   "emerald_block",
+   "lapis_block",
+   "redstone_block",
+   "netherite_block",
+   "amethyst_block",
+   "waxed_copper_block",
+   "waxed_exposed_copper",
+   "waxed_weathered_copper",
+   "waxed_oxidized_copper",
+   "packed_ice",
+   "blue_ice",
+   "clay",
+   "moss_block",
+   "bone_block",
+   "hay_block",
+   "netherrack",
+   "nether_bricks",
+   "red_nether_bricks",
+   "warped_wart_block",
+   "nether_wart_block",
+   "end_stone",
+   "purpur_block",
+   "prismarine",
+   "dark_prismarine",
+   "prismarine_bricks",
+   "bricks",
+   "mud_bricks",
+   "stone_bricks",
+   "sandstone",
+   "red_sandstone",
+   "smooth_sandstone",
+   "smooth_red_sandstone",
+   "pumpkin",
+   "melon",
+   "dried_kelp_block",
+   "dripstone_block",
+   "mud",
+   "coarse_dirt",
+   "dirt",
+   "honeycomb_block",
+   "oak_planks",
+   "spruce_planks",
+   "birch_planks",
+   "jungle_planks",
+   "acacia_planks",
+   "dark_oak_planks",
+   "mangrove_planks",
+   "cherry_planks",
+   "bamboo_planks",
+   "crimson_planks",
+   "warped_planks"
+  ]
+ }
+}
