@@ -6,8 +6,11 @@ How the generated pack works (see docs/how-it-works.md):
   coordinates (``^left ^up ^forward``). Scheduled functions lose their position, so this is what makes the screen
   placeable anywhere.
 * Frame ``i`` is two functions: ``f/i`` (run at the marker, schedule the next frame) and ``d/i`` (the drawing).
-* Block mode only fills the pixels that changed since the previous frame and only replaces the exact old block, so
-  terrain and other builds are never touched. Particle mode re-emits all lit pixels each frame.
+* Block mode only draws the pixels that changed since the previous frame. With ``--method fill`` each
+  change is a ``fill ... replace <old>`` so terrain and other builds are never touched. With ``--method structure`` (the default)
+  each frame's changes are one structure file (``data/<ns>/structure/d/i.nbt``) placed by ``place template``, which
+  keeps the function files tiny but overwrites whatever is in the changed cells. Particle mode re-emits all lit
+  pixels each frame.
 """
 import os
 import re
@@ -17,6 +20,7 @@ import zipfile
 from dataclasses import dataclass
 from typing import Optional
 
+from . import nbt
 from .palette import PaletteError, build_palette
 from .tools import ToolError, find_tool, probe_video
 
@@ -99,6 +103,9 @@ def convert(a, log=print):
     FPS = a.fps
     TICKS = 20 // FPS
     BLOCK = a.mode == "block"
+    if a.method == "structure" and not BLOCK:
+        raise ConvertError("--method structure only works with --mode block")
+    STRUCT = BLOCK and a.method != "fill"  # the default (None) is structure in block mode
     TAG = f"{NS}_o"  # the marker's tag
     W = a.width or (128 if BLOCK else 64)
     H = a.height or max(1, round(W * vh / vw))
@@ -112,6 +119,27 @@ def convert(a, log=print):
 
     def ly(r):  # integer "up" offset of row r
         return H // 2 - r
+
+    # structure method: the wall is a W x H x 1 template whose x axis points "left" (column c is x = W-1-c) and whose
+    # y axis points up; it is rotated to the marker's snapped facing with `place template`'s rotation argument.
+    ROTATIONS = ["none", "clockwise_90", "180", "counterclockwise_90"]  # facing south, west, north, east
+
+    def structure(pixels):
+        """NBT bytes of a structure holding ``pixels`` (``{row * W + col: palette index}``); other cells stay empty."""
+        used = sorted(set(pixels.values()))
+        index = {p: i for i, p in enumerate(used)}
+        blocks = []
+        for k, v in sorted(pixels.items()):
+            r, c = divmod(k, W)
+            blocks.append({"pos": [nbt.Int(W - 1 - c), nbt.Int(H - 1 - r), nbt.Int(0)], "state": nbt.Int(index[v])})
+        return nbt.dumps({"DataVersion": nbt.Int(a.nbt_data_version),
+                          "size": [nbt.Int(W), nbt.Int(H), nbt.Int(1)],
+                          "palette": [{"Name": f"minecraft:{pal[p][1]}"} for p in used],
+                          "blocks": blocks, "entities": []})
+
+    def place_template(name):
+        return [f"execute if score #rot {NS} matches {k} run place template {NS}:{name} "
+                f"^{lx(W - 1)} ^{ly(H - 1)} ^ {rot}\n" for k, rot in enumerate(ROTATIONS)]
 
     # ------------------------------------------------------------ decoding
     cmd = [ffmpeg, "-v", "error"] + _trim_args(a) + ["-i", a.input]
@@ -199,10 +227,16 @@ def convert(a, log=print):
                     if v != prev[k]:
                         changed[(k // W, k % W)] = (v, prev[k])  # (new colour, old colour)
                         prev[k] = v
-                # exact "old -> new" replace: no block tag needed, terrain is never touched
-                lines = [f"fill ^{lx(c0)} ^{ly(r0)} ^ ^{lx(c1)} ^{ly(r1)} ^ "
-                         f"minecraft:{pal[new][1]} replace minecraft:{pal[old][1]}"
-                         for (c0, c1, (new, old)), (r0, r1) in rects(changed, W, H)]
+                if STRUCT:  # one template per frame, holding only the changed cells
+                    lines = []
+                    if changed:
+                        put(f"data/{NS}/structure/d/{n}.nbt",
+                            structure({r * W + c: new for (r, c), (new, _) in changed.items()}))
+                        lines = [x.rstrip("\n") for x in place_template(f"d/{n}")]
+                else:  # exact "old -> new" replace: no block tag needed, terrain is never touched
+                    lines = [f"fill ^{lx(c0)} ^{ly(r0)} ^ ^{lx(c1)} ^{ly(r1)} ^ "
+                             f"minecraft:{pal[new][1]} replace minecraft:{pal[old][1]}"
+                             for (c0, c1, (new, old)), (r0, r1) in rects(changed, W, H)]
             else:
                 lines = []
                 for k in range(W * H):
@@ -256,13 +290,17 @@ def convert(a, log=print):
             f"execute if score #y {NS} matches ..{lo + 1} as {marker} at @s run tp @s ~ {lo + 2}.5 ~\n",
             f"execute if score #y {NS} matches {hi - 1}.. as {marker} at @s run tp @s ~ {hi - 2}.5 ~\n",
             # the wall is axis aligned: snap the marker's facing to N / E / S / W
-            f"execute if entity @s[y_rotation=-45..45] run {snap.format(yaw=0)}\n",
-            f"execute if entity @s[y_rotation=45..135] run {snap.format(yaw=90)}\n",
-            f"execute if entity @s[y_rotation=135..180] run {snap.format(yaw=180)}\n",
-            f"execute if entity @s[y_rotation=-180..-135] run {snap.format(yaw=180)}\n",
-            f"execute if entity @s[y_rotation=-135..-45] run {snap.format(yaw=-90)}\n",
         ]
-        place_lines = [f"execute at {marker} run fill {box} minecraft:{pal[0][1]} replace minecraft:air\n"]
+        for cond, yaw, k in [("-45..45", 0, 0), ("45..135", 90, 1), ("135..180", 180, 2), ("-180..-135", 180, 2),
+                             ("-135..-45", -90, 3)]:
+            snap_lines.append(f"execute if entity @s[y_rotation={cond}] run {snap.format(yaw=yaw)}\n")
+            if STRUCT:  # remember the facing as a rotation for `place template`
+                snap_lines.append(f"execute if entity @s[y_rotation={cond}] run scoreboard players set #rot {NS} {k}\n")
+        if STRUCT:
+            put(f"data/{NS}/structure/bg.nbt", structure({k: 0 for k in range(W * H)}))
+            place_lines = [f"execute at {marker} run {x}" for x in place_template("bg")]
+        else:
+            place_lines = [f"execute at {marker} run fill {box} minecraft:{pal[0][1]} replace minecraft:air\n"]
         put(f"data/{NS}/function/start.mcfunction", start_text(snap_lines, place_lines))
     else:
         half_w, half_h = W * a.cell / 2, H * a.cell / 2

@@ -69,6 +69,7 @@ mcvideo clip.mp4 --name bw --mode particle --mono --width 64
 | `--fps` | 1秒あたりのフレーム数（1, 2, 4, 5, 10, 20）。標準 10 |
 | `--ss` / `--seconds` | 変換する範囲（開始位置と長さ） |
 | `--palette` | ブロックの色数: `bw`（2）/ `gray`（4）/ `color`（16）/ `plus`（49）/ `full`（121） |
+| `--method` | `structure`（標準）/ `fill`: 描き方。`structure` は、1フレームを1つのストラクチャーファイルにして、`place template` で置きます（変化したマスの地形は上書き）。`fill` は、地形を壊しませんが、命令が大量になります |
 | `--dither` | `none` / `bayer` / `floyd_steinberg`（減色の誤差拡散） |
 | `--preview 秒` | 指定した秒のフレームを、そのパレットで見るとどうなるか、PNG にして出して終了 |
 | `--anchor bottom\|gaze` | `bottom`: 下端を足元の高さに合わせる（標準）。`gaze`: 目線の先を画面の中心にする |

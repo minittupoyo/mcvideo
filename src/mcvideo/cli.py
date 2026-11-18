@@ -50,6 +50,12 @@ def build_parser():
     g = p.add_argument_group("block mode")
     g.add_argument("--palette", choices=PALETTE_CHOICES, default="color",
                    help="block colour set: bw, gray, color (16), plus (49), full (121)")
+    g.add_argument("--method", choices=["fill", "structure"],
+                   help="structure (default): one structure file per frame, drawn with `place template` "
+                        "(overwrites the changed cells). fill: one `fill ... replace` per changed rectangle "
+                        "(terrain is never touched, but thousands of commands)")
+    g.add_argument("--nbt-data-version", type=int, default=4671,
+                   help="DataVersion written into structure files (--method structure)")
     g.add_argument("--dither", choices=["none", "bayer", "floyd_steinberg"], default="none")
     g.add_argument("--preview", type=float, metavar="SECONDS",
                    help="only write <out>/preview_<palette>.png (that frame, 6x enlarged) and exit")

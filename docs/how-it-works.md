@@ -44,6 +44,24 @@ d/N:    fill ^a ^b ^ ^c ^d ^ ...                       ← マーカー基準で
 
 ブロックタグ（`replace #名前:タグ`）は使いません。再現実装の Horizon では、タグ指定の `fill` が動かなかったためです。
 
+### ストラクチャー方式（標準、`--method structure`）
+
+`fill` の命令を大量に並べる代わりに、1フレームの変化分を、1つのストラクチャーファイル（`data/<名前>/structure/d/N.nbt`）にして、`place template` で置きます。
+
+```
+d/N:  execute if score #rot <名前> matches 0 run place template <名前>:d/N ^<左端> ^<下端> ^ none
+      execute if score #rot <名前> matches 1 run place template <名前>:d/N ^<左端> ^<下端> ^ clockwise_90
+      （180、counterclockwise_90 も同様。実行されるのは、`#rot` が一致する1行だけ）
+```
+
+- 関数の命令数は、1フレームあたり数百から4に減ります（変化がないフレームは0）。ファイルの合計サイズは、ほぼ同じです。
+- ストラクチャーは、幅 W、高さ H、奥行き 1 で、x 軸が「左」、y 軸が「上」です。変化した画素のブロックだけを持ち、残りのマスには触れません。
+- 向きは、`start` で 東西南北に丸めたときに、`#rot`（0 南、1 西、2 北、3 東）に覚えておき、`place template` の回転（`none` / `clockwise_90` / `180` / `counterclockwise_90`）に対応させます。ローカル座標 `^` で、左下の角に置きます。
+- 背景は、`bg.nbt`（全面が最も暗い色）を、`start` で置きます。
+- `fill ... replace <古い色>` と違い、**変化したマスの地形は上書きされます**。後片付け（`cleanup`）は、これまでどおり `fill` で、パレットのブロックだけを空気にします。
+- NBT は、標準ライブラリだけで書きます（`nbt.py`）。ファイルの `DataVersion` は、`--nbt-data-version`（標準 4671）で変えられます。ゲームのバージョンと合わないときは、この値を合わせてください。
+- Horizon（26.3）で、東西南北の4方向とも、壁が正しい向きで（左右反転せずに）描かれ、アニメーションすることを確認しました（`--nbt-data-version` は標準の 4671 のままで読み込めました）。Horizon、Prism の Fabulously Optimized（128x72、約194秒、`full` パレット）、バニラの 26.3 で、動作を確認しました。
+
 ### ワールドの高さ制限
 
 `fill` は、角の座標が1つでもワールドの高さ（標準 -64〜319）の外にあると、**全体が失敗します**（「その位置はワールド外です」）。
@@ -78,6 +96,7 @@ d/N:    fill ^a ^b ^ ^c ^d ^ ...                       ← マーカー基準で
 |---|---|
 | `src/mcvideo/cli.py` | コマンドライン |
 | `src/mcvideo/convert.py` | 変換の本体（デコード、差分、パックの生成） |
+| `src/mcvideo/nbt.py` | ストラクチャーファイル（NBT）の書き出し |
 | `src/mcvideo/palette.py` | ブロックのパレット |
 | `src/mcvideo/make_palette.py` | テクスチャから、ブロックの色を測る |
 | `src/mcvideo/tools.py` | ffmpeg / ffprobe の呼び出し |

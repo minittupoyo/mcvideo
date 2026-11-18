@@ -9,7 +9,7 @@ import zipfile
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from mcvideo import cli  # noqa: E402
+from mcvideo import cli, nbt  # noqa: E402
 from mcvideo.convert import namespace_for, rects  # noqa: E402
 from mcvideo.tools import ToolError, find_tool  # noqa: E402
 
@@ -92,7 +92,7 @@ class PackTests(unittest.TestCase):
         self.assertIn(f"schedule function {ns}:f/1 2t", z.read(f"data/{ns}/function/f/0.mcfunction").decode())
 
     def test_block_mode(self):
-        z, out = self.run_cli("tblock", "--mode", "block", "--palette", "plus", "--width", "32")
+        z, out = self.run_cli("tblock", "--method", "fill", "--mode", "block", "--palette", "plus", "--width", "32")
         self.check_structure(z, "tblock", 20)
         width, height = 32, 24
         box = re.compile(r"fill \^(-?\d+) \^(-?\d+) \^ \^(-?\d+) \^(-?\d+) \^ minecraft:(\w+) replace minecraft:(\w+)$")
@@ -114,6 +114,59 @@ class PackTests(unittest.TestCase):
         self.assertIn("matches ..", start)  # build-height clamp
         self.assertIn("playsound tblock:video", start)
         self.assertTrue(os.path.exists(os.path.join(out, "tblock_audio.zip")))
+
+    def test_structure_method(self):
+        z, out = self.run_cli("tstruct", "--palette", "plus", "--width", "32")
+        names = set(z.namelist())
+        self.assertIn("data/tstruct/structure/bg.nbt", names)
+        # no fill is used to draw; every frame is placed from its own template, for all four facings
+        drawn = 0
+        for i in range(20):
+            d = z.read(f"data/tstruct/function/d/{i}.mcfunction").decode()
+            self.assertNotIn("fill", d)
+            if f"data/tstruct/structure/d/{i}.nbt" in names:
+                drawn += 1
+                self.assertEqual(len(re.findall(rf"place template tstruct:d/{i} \^-?\d+ \^-?\d+ \^ ", d)), 4)
+                t = nbt.loads(z.read(f"data/tstruct/structure/d/{i}.nbt"))
+                self.assertEqual(list(t["size"]), [32, 24, 1])
+                self.assertTrue(t["blocks"])
+                for b in t["blocks"]:
+                    x, y, zz = b["pos"]
+                    self.assertTrue(0 <= x < 32 and 0 <= y < 24 and zz == 0)
+                    self.assertLess(b["state"], len(t["palette"]))
+                self.assertTrue(all(p["Name"].startswith("minecraft:") for p in t["palette"]))
+            else:
+                self.assertNotIn("place template", d)
+        self.assertGreater(drawn, 0)
+        bg = nbt.loads(z.read("data/tstruct/structure/bg.nbt"))
+        self.assertEqual(len(bg["blocks"]), 32 * 24)
+        start = z.read("data/tstruct/function/start.mcfunction").decode()
+        self.assertIn("place template tstruct:bg", start)
+        for k in range(4):
+            self.assertIn(f"scoreboard players set #rot tstruct {k}", start)
+        self.check_structure(z, "tstruct", 20)
+
+    def test_structure_rotations_match_facing(self):
+        z, _ = self.run_cli("trot", "--palette", "bw", "--width", "16")
+        d = z.read("data/trot/function/d/0.mcfunction").decode() + z.read("data/trot/function/start.mcfunction").decode()
+        for k, rot in enumerate(["none", "clockwise_90", "180", "counterclockwise_90"]):
+            self.assertRegex(d, rf"(?m)matches {k} run place template trot:\w+(/\d+)? \^-?\d+ \^-?\d+ \^ {rot}$")
+
+    def test_structure_needs_block_mode(self):
+        self.assertEqual(cli.main([self.clip, "--name", "tbad", "--out", os.path.join(self.tmp.name, "tbad"),
+                                   "--mode", "particle", "--method", "structure"]), 1)
+
+    def test_default_is_structure_for_block_and_particle_is_unaffected(self):
+        z, _ = self.run_cli("tdef", "--palette", "bw", "--width", "16")
+        self.assertIn("data/tdef/structure/bg.nbt", z.namelist())
+        z, _ = self.run_cli("tdefp", "--mode", "particle", "--width", "16")
+        self.assertFalse([n for n in z.namelist() if "/structure/" in n])
+
+    def test_nbt_roundtrip_is_deterministic(self):
+        root = {"DataVersion": nbt.Int(1), "size": [nbt.Int(2), nbt.Int(3), nbt.Int(1)], "entities": [],
+                "palette": [{"Name": "minecraft:stone"}]}
+        self.assertEqual(nbt.dumps(root), nbt.dumps(root))
+        self.assertEqual(nbt.loads(nbt.dumps(root)), root)
 
     def test_particle_mode(self):
         z, out = self.run_cli("tpart", "--mode", "particle", "--width", "16")
