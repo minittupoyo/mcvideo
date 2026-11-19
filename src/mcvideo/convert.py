@@ -25,6 +25,9 @@ from .palette import PaletteError, build_palette
 from .tools import ToolError, find_tool, probe_video
 
 
+_CHANGED = re.compile(rb"[^\x00]")  # a changed cell in the XOR of two frames
+
+
 class ConvertError(RuntimeError):
     """A user-facing error (bad input, missing tool, ...)."""
 
@@ -124,18 +127,11 @@ def convert(a, log=print):
     # y axis points up; it is rotated to the marker's snapped facing with `place template`'s rotation argument.
     ROTATIONS = ["none", "clockwise_90", "180", "counterclockwise_90"]  # facing south, west, north, east
 
+    writer = nbt.StructureWriter(W, H, a.nbt_data_version)
+
     def structure(pixels):
         """NBT bytes of a structure holding ``pixels`` (``{row * W + col: palette index}``); other cells stay empty."""
-        used = sorted(set(pixels.values()))
-        index = {p: i for i, p in enumerate(used)}
-        blocks = []
-        for k, v in sorted(pixels.items()):
-            r, c = divmod(k, W)
-            blocks.append({"pos": [nbt.Int(W - 1 - c), nbt.Int(H - 1 - r), nbt.Int(0)], "state": nbt.Int(index[v])})
-        return nbt.dumps({"DataVersion": nbt.Int(a.nbt_data_version),
-                          "size": [nbt.Int(W), nbt.Int(H), nbt.Int(1)],
-                          "palette": [{"Name": f"minecraft:{pal[p][1]}"} for p in used],
-                          "blocks": blocks, "entities": []})
+        return writer.dumps(pixels, {p: f"minecraft:{pal[p][1]}" for p in set(pixels.values())})
 
     def place_template(name):
         return [f"execute if score #rot {NS} matches {k} run place template {NS}:{name} "
@@ -212,7 +208,7 @@ def convert(a, log=print):
     # ------------------------------------------------------------ frames
     n = 0
     total = 0
-    prev = bytearray(W * H)  # block mode: palette indices; 0 = background (painted at start)
+    prev = bytes(W * H)  # block mode: palette indices; 0 = background (painted at start)
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     try:
         while True:
@@ -221,19 +217,19 @@ def convert(a, log=print):
                 break
             if BLOCK:
                 cur = buf[0::3].translate(table)
-                changed = {}
-                for k in range(W * H):
-                    v = cur[k]
-                    if v != prev[k]:
-                        changed[(k // W, k % W)] = (v, prev[k])  # (new colour, old colour)
-                        prev[k] = v
+                if cur != prev:  # XOR the frames as big integers; the non-zero bytes are the changed cells
+                    diff = (int.from_bytes(cur, "little") ^ int.from_bytes(prev, "little")).to_bytes(W * H, "little")
+                    idx = [m.start() for m in _CHANGED.finditer(diff)]
+                else:
+                    idx = []
+                old, prev = prev, cur
                 if STRUCT:  # one template per frame, holding only the changed cells
                     lines = []
-                    if changed:
-                        put(f"data/{NS}/structure/d/{n}.nbt",
-                            structure({r * W + c: new for (r, c), (new, _) in changed.items()}))
+                    if idx:
+                        put(f"data/{NS}/structure/d/{n}.nbt", structure({k: cur[k] for k in idx}))
                         lines = [x.rstrip("\n") for x in place_template(f"d/{n}")]
                 else:  # exact "old -> new" replace: no block tag needed, terrain is never touched
+                    changed = {(k // W, k % W): (cur[k], old[k]) for k in idx}  # (new colour, old colour)
                     lines = [f"fill ^{lx(c0)} ^{ly(r0)} ^ ^{lx(c1)} ^{ly(r1)} ^ "
                              f"minecraft:{pal[new][1]} replace minecraft:{pal[old][1]}"
                              for (c0, c1, (new, old)), (r0, r1) in rects(changed, W, H)]

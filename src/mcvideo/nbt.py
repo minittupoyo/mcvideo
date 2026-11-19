@@ -53,6 +53,41 @@ def dumps(root):
     return gzip.compress(raw, mtime=0)
 
 
+class StructureWriter:
+    """Fast path for ``dumps`` of a ``width x height x 1`` structure (same bytes as the generic serialiser).
+
+    Every block is ``{"pos": [x, y, 0], "state": i}``, so the bytes of each cell's ``pos`` and of each ``state`` are
+    built once and just concatenated per frame. ``level`` is the gzip level (6 is as small as 9 here but much faster).
+    """
+
+    def __init__(self, width, height, data_version, level=6):
+        self.width, self.height, self.level = width, height, level
+        self._head = (struct.pack(">b", INT) + _string("DataVersion") + struct.pack(">i", data_version)
+                      + struct.pack(">b", LIST) + _string("size") + struct.pack(">bi3i", INT, 3, width, height, 1))
+        self._pos = [struct.pack(">b", LIST) + _string("pos")
+                     + struct.pack(">bi3i", INT, 3, width - 1 - k % width, height - 1 - k // width, 0)
+                     for k in range(width * height)]
+        self._state = {}
+
+    def _state_bytes(self, i):
+        if i not in self._state:
+            self._state[i] = struct.pack(">b", INT) + _string("state") + struct.pack(">i", i) + b"\x00"
+        return self._state[i]
+
+    def dumps(self, pixels, names):
+        """``pixels``: ``{row * width + col: key}``; ``names[key]`` is the block id. Keys are numbered in sorted order."""
+        used = sorted(set(pixels.values()))
+        index = {p: self._state_bytes(i) for i, p in enumerate(used)}
+        palette = b"".join(struct.pack(">b", STRING) + _string("Name") + _string(names[p]) + b"\x00" for p in used)
+        pos = self._pos
+        body = b"".join([pos[k] + index[v] for k, v in sorted(pixels.items())])
+        raw = (struct.pack(">b", COMPOUND) + _string("") + self._head
+               + struct.pack(">b", LIST) + _string("palette") + struct.pack(">bi", COMPOUND, len(used)) + palette
+               + struct.pack(">b", LIST) + _string("blocks") + struct.pack(">bi", COMPOUND, len(pixels)) + body
+               + struct.pack(">b", LIST) + _string("entities") + struct.pack(">bi", 0, 0) + b"\x00")
+        return gzip.compress(raw, compresslevel=self.level, mtime=0)
+
+
 def loads(data):
     """Parse a file written by ``dumps`` (used by the tests to check the output)."""
     raw, pos = gzip.decompress(data), 0

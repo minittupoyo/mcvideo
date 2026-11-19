@@ -168,6 +168,22 @@ class PackTests(unittest.TestCase):
         self.assertEqual(nbt.dumps(root), nbt.dumps(root))
         self.assertEqual(nbt.loads(nbt.dumps(root)), root)
 
+    def test_structure_writer_matches_generic_nbt(self):
+        import gzip
+        W, H = 5, 4
+        pixels = {0: 3, 7: 1, 8: 3, 19: 12}
+        names = {1: "minecraft:a", 3: "minecraft:b", 12: "minecraft:c"}
+        used = sorted(set(pixels.values()))
+        idx = {p: i for i, p in enumerate(used)}
+        root = {"DataVersion": nbt.Int(99), "size": [nbt.Int(W), nbt.Int(H), nbt.Int(1)],
+                "palette": [{"Name": names[p]} for p in used],
+                "blocks": [{"pos": [nbt.Int(W - 1 - k % W), nbt.Int(H - 1 - k // W), nbt.Int(0)],
+                            "state": nbt.Int(idx[v])} for k, v in sorted(pixels.items())],
+                "entities": []}
+        fast = nbt.StructureWriter(W, H, 99).dumps(pixels, names)
+        self.assertEqual(gzip.decompress(fast), gzip.decompress(nbt.dumps(root)))
+        self.assertEqual(nbt.loads(fast), root)
+
     def test_particle_mode(self):
         z, out = self.run_cli("tpart", "--mode", "particle", "--width", "16")
         self.check_structure(z, "tpart", 20)
